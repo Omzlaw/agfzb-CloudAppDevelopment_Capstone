@@ -22,7 +22,7 @@
         </button>
   
         <div class="collapse navbar-collapse" id="navbarsExample03">
-          <ul class="navbar-nav mr-auto">
+          <ul class="navbar-nav navbar-right">
             <li class="nav-item active">
               <a class="nav-link" href="#">Home <span class="sr-only"></span></a>
             </li>
@@ -32,10 +32,26 @@
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'djangoapp:contact' %}">Contact</a>
             </li>
+            {% if user.is_authenticated %}
+            <li>
+                <a class="btn btn-link" href="#">{{ user.first_name }}({{ user.username }})</a>
+                <a class="btn btn-link" href="{% url 'djangoapp:logout' %}">Logout</a>
+            </li>
+            {% else %}
+  
+            <li>
+            <form class="form-inline" action="{% url 'djangoapp:login' %}" method="post">
+                  {% csrf_token %}
+                  <div class="input-group">
+                      <input type="text" class="form-control" placeholder="Username" name="username" >
+                      <input type="password" class="form-control" placeholder="Password" name="password" >
+                      <button class="btn btn-primary" type="submit">Login</button>
+                      <a class="btn btn-link" href="{% url 'djangoapp:registration' %}">Sign Up</a>
+                  </div>
+            </form>
+          </li>
+          {% endif %}
           </ul>
-          <form class="form-inline my-2 my-md-0">
-            <input class="form-control" type="text" placeholder="Search">
-          </form>
         </div>
       </nav>
     <!--Add a dealer table here -->
