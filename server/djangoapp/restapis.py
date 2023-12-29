@@ -148,6 +148,16 @@ def analyze_review_sentiments(text, **kwargs):
 
 
     # return results
+
+    url = 'https://sn-watson-sentiment-bert.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/SentimentPredict'
+    myobj = { "raw_document": { "text": text } }
+    header = {"grpc-metadata-mm-model-id": "sentiment_aggregated-bert-workflow_lang_multi_stock"}
+    response = requests.post(url, json = myobj, headers=header)
+    formatted_response = json.loads(response)
+    label = formatted_response['documentSentiment']['label']
+
+    return label
+
     pass
 
 
