@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
-from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf
+from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -95,7 +95,7 @@ def registration_request(request):
 
 def get_dealerships(request):
     if request.method == "GET":
-        url = "https://us-south.functions.appdomain.cloud/api/v1/web/816ebcf6-e6db-4799-95d8-8ce28f6078c8/dealership-package/get-dealership"
+        url = "https://us-south.functions.cloud.ibm.com/api/v1/namespaces/816ebcf6-e6db-4799-95d8-8ce28f6078c8/actions/dealership-package/get-dealership"
         # Get dealers from the URL
         dealerships = get_dealers_from_cf(url)
         # Concat all dealer's short name
@@ -107,13 +107,37 @@ def get_dealerships(request):
 # Create a `get_dealer_details` view to render the reviews of a dealer
 def get_dealer_details(request, dealer_id):
     if request.method == "GET":
-        url = "https://us-south.functions.appdomain.cloud/api/v1/web/816ebcf6-e6db-4799-95d8-8ce28f6078c8/dealership-package/get-dealership"
+        url = "https://us-south.functions.appdomain.cloud/api/v1/web/816ebcf6-e6db-4799-95d8-8ce28f6078c8/dealership-package/get-dealership-reviews"
         # Get dealer details from the URL
         dealer_details = get_dealer_reviews_from_cf(url, dealer_id)
         # Return a list of dealer short name
         return HttpResponse(dealer_details)
 
 # Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
-# ...
+def add_review(request, dealer_id):
+    if request.user.is_authenticated:
+        review = {
+            "id": request.POST["id"],
+            "name": request.POST["name"],
+            "dealership": request.POST["dealership"],
+            "review": request.POST["review"],
+            "purchase": request.POST["purchase"],
+            "purchase_date": request.POST["purchase_date"],
+            "car_make": request.POST["car_make"],
+            "car_model": request.POST["car_model"],
+            "car_year": request.POST["car_year"]
+        }
+        json_payload = {
+            "review": review
+        }
+
+        url = "https://us-south.functions.appdomain.cloud/api/v1/web/816ebcf6-e6db-4799-95d8-8ce28f6078c8/dealership-package/add-review"
+
+        response = post_request(url, json_payload, dealerId=dealer_id)
+
+        return response
+    else:
+        # User is not authenticated, you may want to redirect them to a login page
+       return redirect("djangoapp:login")
+
 
