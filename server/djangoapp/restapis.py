@@ -158,7 +158,5 @@ def analyze_review_sentiments(text, **kwargs):
 
     return label
 
-    pass
-
 
 
