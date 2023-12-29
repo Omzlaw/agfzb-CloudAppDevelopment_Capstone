@@ -95,7 +95,7 @@ def registration_request(request):
 
 def get_dealerships(request):
     if request.method == "GET":
-        url = "https://us-south.functions.cloud.ibm.com/api/v1/namespaces/816ebcf6-e6db-4799-95d8-8ce28f6078c8/actions/dealership-package/get-dealership"
+        url = "https://us-south.functions.cloud.ibm.com/api/v1/web/816ebcf6-e6db-4799-95d8-8ce28f6078c8/dealership-package/get-dealership.json"
         # Get dealers from the URL
         dealerships = get_dealers_from_cf(url)
         # Concat all dealer's short name
@@ -107,7 +107,7 @@ def get_dealerships(request):
 # Create a `get_dealer_details` view to render the reviews of a dealer
 def get_dealer_details(request, dealer_id):
     if request.method == "GET":
-        url = "https://us-south.functions.appdomain.cloud/api/v1/web/816ebcf6-e6db-4799-95d8-8ce28f6078c8/dealership-package/get-dealership-reviews"
+        url = "https://us-south.functions.appdomain.cloud/api/v1/web/816ebcf6-e6db-4799-95d8-8ce28f6078c8/dealership-package/get-dealership-reviews.json"
         # Get dealer details from the URL
         dealer_details = get_dealer_reviews_from_cf(url, dealer_id)
         # Return a list of dealer short name
@@ -131,7 +131,7 @@ def add_review(request, dealer_id):
             "review": review
         }
 
-        url = "https://us-south.functions.appdomain.cloud/api/v1/web/816ebcf6-e6db-4799-95d8-8ce28f6078c8/dealership-package/add-review"
+        url = "https://us-south.functions.appdomain.cloud/api/v1/web/816ebcf6-e6db-4799-95d8-8ce28f6078c8/dealership-package/add-review.json"
 
         response = post_request(url, json_payload, dealerId=dealer_id)
 

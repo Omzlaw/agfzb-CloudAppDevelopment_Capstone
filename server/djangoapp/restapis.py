@@ -1,6 +1,6 @@
 import requests
 import json
-from .models import CarDealer
+from .models import CarDealer, DealerReview
 from requests.auth import HTTPBasicAuth
 
 
@@ -50,7 +50,7 @@ def get_dealers_from_cf(url, **kwargs):
     json_result = get_request(url)
     if json_result:
         # Get the row list in JSON as dealers
-        dealers = json_result["rows"]
+        dealers = json_result["dealerships"]["rows"]
         # For each dealer object
         for dealer in dealers:
             # Get its content in `doc` object
@@ -71,7 +71,7 @@ def get_dealer_by_id_from_cf(url, dealerId):
     json_result = get_request(url, dealerId=dealerId)
     if json_result:
         # Get the row list in JSON as dealers
-        dealers = json_result["rows"]
+        dealers = json_result["dealerships"]["rows"]
         # For each dealer object
         for dealer in dealers:
             # Get its content in `doc` object
@@ -92,7 +92,7 @@ def get_dealer_by_state_from_cf(url, state):
     json_result = get_request(url, state=state)
     if json_result:
         # Get the row list in JSON as dealers
-        dealers = json_result["rows"]
+        dealers = json_result["dealerships"]["rows"]
         # For each dealer object
         for dealer in dealers:
             # Get its content in `doc` object
@@ -113,21 +113,31 @@ def get_dealer_reviews_from_cf(url, dealerId):
     json_result = get_request(url, dealerId=dealerId)
     if json_result:
         # Get the row list in JSON as dealers
-        dealers_reviews = json_result["rows"]
+        dealers_reviews = json_result["reviews"]
         # For each dealer object
         for dealer_review in dealers_reviews:
             # Get its content in `doc` object
-
+            dealer_review_doc = dealer_review["doc"]
             # Create a CarDealer object with values in `doc` object
             dealer_review_obj = DealerReview(dealership=dealer_review_doc["dealership"], name=dealer_review_doc["name"], purchase=dealer_review_doc["purchase"],
                                    id=dealer_review_doc["id"], review=dealer_review_doc["review"], purchase_date=dealer_review_doc["purchase_date"],
                                    car_make=dealer_review_doc["car_make"],
-                                   car_model=dealer_review_doc["car_model"], car_year=dealer_review_doc["car_year"], sentiment=dealer_review_doc["sentiment"])
+                                   car_model=dealer_review_doc["car_model"], car_year=dealer_review_doc["car_year"], sentiment="")
 
-            dealer_review_obj.sentiment = analyze_review_sentiments(review_obj.review)
+            dealer_review_obj.sentiment = analyze_review_sentiments(dealer_review_obj.review)
             results.append(dealer_review_obj)
 
     return results
+
+def map_sentiment(label):
+    if label == 'SENT_POSITIVE':
+        return "positive"
+    elif label == 'SENT_NEUTRAL':
+        return "neutral"
+    elif label == 'SENT_NEGATIVE':
+        return "negative"
+    else:
+        return "positive"
 
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
@@ -153,10 +163,10 @@ def analyze_review_sentiments(text, **kwargs):
     myobj = { "raw_document": { "text": text } }
     header = {"grpc-metadata-mm-model-id": "sentiment_aggregated-bert-workflow_lang_multi_stock"}
     response = requests.post(url, json = myobj, headers=header)
-    formatted_response = json.loads(response)
+    formatted_response = response.json()
     label = formatted_response['documentSentiment']['label']
 
-    return label
+    return map_sentiment(label)
 
 
 
