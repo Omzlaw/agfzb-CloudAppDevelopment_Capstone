@@ -10,9 +10,69 @@
     <body>
 
     <!--Add a nav bar here -->
-
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Dealership</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+  
+        <div class="collapse navbar-collapse" id="navbarsExample03">
+          <ul class="navbar-nav navbar-right">
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'djangoapp:index' %}">Home <span class="sr-only"></span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'djangoapp:about' %}">About</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'djangoapp:contact' %}">Contact</a>
+            </li>
+            {% if user.is_authenticated %}
+            <li>
+                <a class="btn btn-link" href="{% url 'djangoapp:add_review' dealer_id%}">Add Review</a>
+                <a class="btn btn-link" href="#">{{ user.first_name }}({{ user.username }})</a>
+                <a class="btn btn-link" href="{% url 'djangoapp:logout' %}">Logout</a>
+            </li>
+            {% else %}
+  
+            <li>
+            <form class="form-inline" action="{% url 'djangoapp:login' %}" method="post">
+                  {% csrf_token %}
+                  <div class="input-group">
+                      <input type="text" class="form-control" placeholder="Username" name="username" >
+                      <input type="password" class="form-control" placeholder="Password" name="password" >
+                      <button class="btn btn-primary" type="submit">Login</button>
+                      <a class="btn btn-link" href="{% url 'djangoapp:registration' %}">Sign Up</a>
+                  </div>
+            </form>
+          </li>
+          {% endif %}
+          </ul>
+        </div>
+      </nav>
     <!-- Add reviews as cards -->
+    <div class="m-5">
+        <h3> Reviews</h3>
+    </div>
+    <div class="card-columns m-5">
+        {% for dealership_review in dealership_reviews_list %}
+            <div class="card">
+                <img height="50" width="50" class="card-img-left" src="{{ MEDIA_URL }}/emoji/{{ dealership_review.sentiment }}.png">
+                <div class="card-body">
+                    <div class="card-title font-weight-bold">
+                        {{ dealership_review.car_model }}, {{ dealership_review.car_make }}
+                    </div>
+                    <div class="card-title font-weight-bold">
+                        {{ dealership_review.car_year }}
+                    </div>
+                    <div class="card-text">
+                        {{ dealership_review.review }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
 
+    </div>
     </body>
 
 </html>
