@@ -28,17 +28,18 @@ def get_request(url, api_key="", **kwargs):
 
 # Create a `post_request` to make HTTP POST requests
 # e.g., response = requests.post(url, params=kwargs, json=payload)
-def post_request(url, api_key="", **kwargs):
-    print(kwargs)
+def post_request(url, json_payload, **kwargs):
+    print(json_payload)
     print("GET from {} ".format(url))
     try:
         response = requests.post(url, headers={'Content-Type': 'application/json'},
-            params=kwargs)
+            params=kwargs, json=json_payload)
     except:
         # If any error occurs
         print("Network exception occurred")
     status_code = response.status_code
     print("With status {} ".format(status_code))
+    print("Response {} ".format(response.text))
     json_data = json.loads(response.text)
     return json_data
 
@@ -71,19 +72,15 @@ def get_dealer_by_id_from_cf(url, dealerId):
     json_result = get_request(url, dealerId=dealerId)
     if json_result:
         # Get the row list in JSON as dealers
-        dealers = json_result["dealerships"]["rows"]
+        dealer = json_result["dealerships"][0]
         # For each dealer object
-        for dealer in dealers:
-            # Get its content in `doc` object
-            dealer_doc = dealer["doc"]
-            # Create a CarDealer object with values in `doc` object
-            dealer_obj = CarDealer(address=dealer_doc["address"], city=dealer_doc["city"], full_name=dealer_doc["full_name"],
-                                   id=dealer_doc["id"], lat=dealer_doc["lat"], long=dealer_doc["long"],
-                                   short_name=dealer_doc["short_name"],
-                                   st=dealer_doc["st"], zip=dealer_doc["zip"])
-            results.append(dealer_obj)
-
-    return results
+        dealer_doc = dealer["doc"]
+        # Create a CarDealer object with values in `doc` object
+        dealer_obj = CarDealer(address=dealer_doc["address"], city=dealer_doc["city"], full_name=dealer_doc["full_name"],
+                                id=dealer_doc["id"], lat=dealer_doc["lat"], long=dealer_doc["long"],
+                                short_name=dealer_doc["short_name"],
+                                st=dealer_doc["st"], zip=dealer_doc["zip"])
+    return dealer_obj
 
 
 def get_dealer_by_state_from_cf(url, state):
